@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QuSenseSim{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="light-theme">
+    <div class="page-shell">
+        <header class="site-header">
+            <nav class="navbar container">
+                <a class="brand" href="{{ url_for('home') }}">
+                    <span class="brand-logo">
+                        <svg viewBox="0 0 120 120" role="img" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#33d6ff"></stop>
+                                    <stop offset="100%" stop-color="#8b5cf6"></stop>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="60" cy="60" r="17" fill="url(#brandGradient)"></circle>
+                            <circle cx="60" cy="60" r="37" fill="none" stroke="#2dd4bf" stroke-width="4"></circle>
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="6 7"></circle>
+                            <circle cx="60" cy="12" r="6" fill="#33d6ff"></circle>
+                            <circle cx="102" cy="74" r="6" fill="#8b5cf6"></circle>
+                            <circle cx="20" cy="82" r="6" fill="#2dd4bf"></circle>
+                            <line x1="60" y1="60" x2="60" y2="12" stroke="#33d6ff" stroke-width="2.5"></line>
+                            <line x1="60" y1="60" x2="102" y2="74" stroke="#8b5cf6" stroke-width="2.5"></line>
+                            <line x1="60" y1="60" x2="20" y2="82" stroke="#2dd4bf" stroke-width="2.5"></line>
+                        </svg>
+                    </span>
+                    <span class="brand-copy">
+                        <span class="brand-title">QuSenseSim</span>
+                        <span class="brand-subtitle">Quantum Sensing Simulator</span>
+                    </span>
+                </a>
+
+                <div class="nav-right">
+                    <div class="nav-links">
+                        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">Home</a>
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Dashboard</a>
+                        <a class="nav-link {% if request.endpoint == 'circuit_builder' %}active{% endif %}" href="{{ url_for('circuit_builder') }}">Circuit Builder</a>
+                        <a class="nav-link {% if request.endpoint == 'analysis' %}active{% endif %}" href="{{ url_for('analysis') }}">Analysis</a>
+                    </div>
+
+                    <label class="theme-switch" title="Toggle light/dark theme">
+                        <input id="themeToggle" type="checkbox" aria-label="Toggle theme">
+                        <span class="theme-slider"></span>
+                    </label>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="site-footer">
+            <div class="container footer-inner">
+                <p>© 2026 All Rights Reserved</p>
+                <p><strong>Ratun Rahman</strong></p>
+                <p>NIS Lab, UAH</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

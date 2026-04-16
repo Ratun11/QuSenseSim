@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}QuSenseSim | Quantum Sensing Analysis{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="analysis-shell container">
+    <div class="analysis-topbar">
+        <div>
+            <h1>Quantum Sensing Analysis</h1>
+            <p>Mitigation variants, personalized sensor mitigation, complete figures + tables, and paper-ready comparison views.</p>
+        </div>
+        <div class="live-indicator">
+            <span class="live-dot"></span>
+            <span>Analysis Ready</span>
+        </div>
+    </div>
+
+    <div class="analysis-controls-card">
+        <div class="analysis-controls-header">
+            <div>
+                <h2>Mitigation + Collaboration Controls</h2>
+                <p>Select collaboration modes, choose uniform variants, or assign personalized mitigation per sensor.</p>
+            </div>
+            <div class="analysis-actions">
+                <button class="btn btn-primary" id="runCollaborationBtn" type="button">Run Analysis</button>
+                <button class="btn btn-secondary" id="backToSetupBtn" type="button">Back to Setup</button>
+            </div>
+        </div>
+
+        <div class="setup-summary-grid" id="setupSummary">
+            <div class="summary-pill">Loading setup summary…</div>
+        </div>
+
+        <div class="time-config-grid">
+            <label class="config-field"><span>Total Time</span><input type="number" id="totalTimeInput" min="1" max="30" step="0.5" value="6"></label>
+            <label class="config-field"><span>Time Steps</span><input type="number" id="numStepsInput" min="10" max="300" step="5" value="60"></label>
+            <label class="config-field"><span>T1</span><input type="number" id="t1Input" min="0.5" max="30" step="0.1" value="7"></label>
+            <label class="config-field"><span>T2</span><input type="number" id="t2Input" min="0.3" max="20" step="0.1" value="4"></label>
+        </div>
+
+        <div class="mode-method-grid">
+            <div class="method-group">
+                <h3>Collaboration Modes</h3>
+                <div class="method-list" id="modeList">
+                    <label class="method-option"><input type="checkbox" value="independent" checked><div class="method-copy"><strong>Independent</strong><span>Local sensing with post-hoc averaging.</span></div></label>
+                    <label class="method-option"><input type="checkbox" value="entangled"><div class="method-copy"><strong>Entangled-Style</strong><span>Shared sensitivity with greater fragility under noise.</span></div></label>
+                    <label class="method-option"><input type="checkbox" value="federated"><div class="method-copy"><strong>Federated-Style</strong><span>Reliability-weighted collaboration under heterogeneity.</span></div></label>
+                </div>
+            </div>
+
+            <div class="method-group">
+                <h3>Mitigation Scope</h3>
+                <div class="scope-box">
+                    <label class="radio-row"><input type="radio" name="mitigationScope" value="uniform" checked> <span>Uniform Mitigation</span></label>
+                    <label class="radio-row"><input type="radio" name="mitigationScope" value="personalized"> <span>Personalized Sensor Mitigation</span></label>
+                </div>
+                <div id="uniformVariantPanel" class="variant-panel">
+                    <div class="mitigation-group-title">
+                        <h4>Execution-Time Mitigation Techniques</h4>
+                        <p>Applied during circuit execution or sensing-time control.</p>
+                    </div>
+                    <div class="family-variant-grid" id="executionVariantList"></div>
+
+                    <div class="mitigation-group-title group-gap">
+                        <h4>Post-Processing Mitigation Techniques</h4>
+                        <p>Applied after measurement or through post-processing correction.</p>
+                    </div>
+                    <div class="family-variant-grid" id="postVariantList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="personalizedPanel" class="analysis-card nested-card hidden">
+            <div class="card-header">
+                <h3>Personalized Sensor Mitigation</h3>
+                <p>Assign one or more execution-time and/or post-processing variants to each sensor.</p>
+            </div>
+            <div class="table-wrap">
+                <table class="comparison-table" id="personalizedTable">
+                    <thead>
+                        <tr>
+                            <th>Sensor</th>
+                            <th>Family</th>
+                            <th>Variant</th>
+                            <th>Add</th>
+                            <th>Selected Variants</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="filter-export-grid">
+            <div class="filter-box">
+                <label class="config-field">
+                    <span>Table/Chart Filter: Mode</span>
+                    <select id="chartModeFilter" class="sensor-select">
+                        <option value="all">All Modes</option>
+                    </select>
+                </label>
+                <label class="config-field">
+                    <span>Table/Chart Filter: Scope</span>
+                    <select id="chartScopeFilter" class="sensor-select">
+                        <option value="all">All Scopes</option>
+                        <option value="none">No Mitigation</option>
+                        <option value="uniform">Uniform</option>
+                        <option value="personalized">Personalized</option>
+                    </select>
+                </label>
+            </div>
+            <div class="export-box">
+                <button class="btn btn-secondary" id="exportSummaryJsonBtn" type="button">Export Summary JSON</button>
+                <button class="btn btn-secondary" id="downloadCurrentTableBtn" type="button">Download Current Table CSV</button>
+                <button class="btn btn-secondary" id="exportCurrentFigureBtn" type="button">Export Current Figure PNG</button>
+                <button class="btn btn-secondary" id="exportSnapshotBtn" type="button">Export Report Snapshot</button>
+            </div>
+        </div>
+
+        <div class="analysis-status" id="analysisStatus">
+            Every section below is fully rendered: each graph is paired with a populated table and no placeholder sections are left empty.
+        </div>
+    </div>
+
+    <section class="insight-grid">
+        <div class="insight-card"><span class="insight-label">Best Overall Method</span><strong id="bestOverallCard">—</strong><small id="bestOverallSub">Run analysis</small></div>
+        <div class="insight-card"><span class="insight-label">Best Variant</span><strong id="bestVariantCard">—</strong><small id="bestVariantSub">Run analysis</small></div>
+        <div class="insight-card"><span class="insight-label">Best Mode</span><strong id="bestModeCard">—</strong><small id="bestModeSub">Run analysis</small></div>
+        <div class="insight-card"><span class="insight-label">Best Personalized Setup</span><strong id="bestPersonalizedCard">—</strong><small id="bestPersonalizedSub">Run analysis</small></div>
+        <div class="insight-card"><span class="insight-label">Personalized Gain over Uniform</span><strong id="personalizedGainCard">—</strong><small id="personalizedGainSub">Run analysis</small></div>
+    </section>
+
+    <div class="analysis-card interpretation-card">
+        <div class="card-header"><h3>Interpretation</h3><p>Automatic summary of the current best configuration.</p></div>
+        <div id="interpretationPanel" class="interpretation-panel">Run analysis to generate an interpretation.</div>
+    </div>
+
+    <section class="analysis-block" data-figure="fiTimeChart" data-table="global">
+        <div class="block-header"><div><h2>FI vs Time</h2><p id="fiInsight">Tracks how Fisher Information changes over time.</p></div><span class="best-badge" id="fiBestBadge">Best variant: —</span></div>
+        <div class="figure-table-grid">
+            <div class="analysis-card"><div class="chart-wrap"><canvas id="fiTimeChart"></canvas></div></div>
+            <div class="analysis-card"><div class="table-wrap"><table class="comparison-table" id="globalTable"><thead><tr><th>Mode</th><th>Scope</th><th>Family</th><th>Variant</th><th>Final FI</th><th>Final CRB</th><th>Avg Noise</th><th>Improvement</th></tr></thead><tbody></tbody></table></div></div>
+        </div>
+    </section>
+
+    <section class="analysis-block" data-figure="crbTimeChart" data-table="estimate">
+        <div class="block-header"><div><h2>CRB / Estimate Analysis</h2><p id="estimateInsight">Final estimate quality and error for every configuration.</p></div><span class="best-badge" id="estimateBestBadge">Best estimate: —</span></div>
+        <div class="figure-table-grid">
+            <div class="analysis-card"><div class="chart-wrap"><canvas id="crbTimeChart"></canvas></div></div>
+            <div class="analysis-card"><div class="table-wrap"><table class="comparison-table" id="estimateTable"><thead><tr><th>Mode</th><th>Scope</th><th>Family</th><th>Variant</th><th>Initial</th><th>Final</th><th>Avg</th><th>Error</th></tr></thead><tbody></tbody></table></div></div>
+        </div>
+    </section>
+
+    <section class="analysis-block" data-figure="noiseTimeChart" data-table="noise">
+        <div class="block-header"><div><h2>Effective Noise vs Time</h2><p id="noiseInsight">Compare noise reduction across variants and scopes.</p></div><span class="best-badge" id="noiseBestBadge">Lowest noise: —</span></div>
+        <div class="figure-table-grid">
+            <div class="analysis-card"><div class="chart-wrap"><canvas id="noiseTimeChart"></canvas></div></div>
+            <div class="analysis-card"><div class="table-wrap"><table class="comparison-table" id="noiseTable"><thead><tr><th>Mode</th><th>Scope</th><th>Family</th><th>Variant</th><th>Initial</th><th>Final</th><th>Avg</th><th>Reduction</th></tr></thead><tbody></tbody></table></div></div>
+        </div>
+    </section>
+
+    <section class="analysis-block" data-figure="modeBarChart" data-table="global">
+        <div class="block-header"><div><h2>Mode Comparison</h2><p id="modeInsight">Independent, Entangled-Style, and Federated-Style compared directly.</p></div><span class="best-badge" id="modeBestBadge">Best mode: —</span></div>
+        <div class="figure-table-grid">
+            <div class="analysis-card"><div class="chart-wrap"><canvas id="modeBarChart"></canvas></div></div>
+            <div class="analysis-card"><div class="chart-wrap"><canvas id="mitigationGainChart"></canvas></div></div>
+        </div>
+    </section>
+
+    <section class="analysis-block" data-figure="sensorContributionChart" data-table="sensor">
+        <div class="block-header"><div><h2>Per-Sensor Contribution</h2><p id="sensorInsight">Sensor-level reliability and contribution under the selected view.</p></div><span class="best-badge" id="sensorBestBadge">Best personalized setup: —</span></div>
+        <div class="sensor-filter-row block-filter-row">
+            <select id="modeSelect" class="sensor-select"></select>
+            <select id="scopeSelect" class="sensor-select">
+                <option value="none">No Mitigation</option>
+                <option value="uniform">Uniform</option>
+                <option value="personalized">Personalized</option>
+            </select>
+            <select id="variantSelect" class="sensor-select"></select>
+        </div>
+        <div class="figure-table-grid">
+            <div class="analysis-card"><div class="chart-wrap"><canvas id="sensorContributionChart"></canvas></div></div>
+            <div class="analysis-card"><div class="chart-wrap"><canvas id="sensorReliabilityChart"></canvas></div></div>
+        </div>
+        <div class="analysis-card"><div class="table-wrap"><table class="comparison-table" id="sensorTable"><thead><tr><th>Sensor</th><th>Mode</th><th>Scope</th><th>Family</th><th>Variant</th><th>FI</th><th>CRB</th><th>Noise</th><th>Reliability</th></tr></thead><tbody></tbody></table></div></div>
+    </section>
+
+    <div class="analysis-card">
+        <div class="card-header">
+            <div>
+                <h3>Sensor Drill-Down</h3>
+                <p>Compare one sensor across all currently filtered configurations over time.</p>
+            </div>
+            <div class="sensor-filter-row">
+                <select id="sensorSelect" class="sensor-select"></select>
+                <select id="sensorMetricSelect" class="sensor-select">
+                    <option value="fisher_info">FI</option>
+                    <option value="crb">CRB</option>
+                    <option value="estimate">Estimate</option>
+                    <option value="effective_noise">Noise</option>
+                    <option value="coherence">Coherence</option>
+                </select>
+            </div>
+        </div>
+        <div class="chart-wrap"><canvas id="sensorMetricChart"></canvas></div>
+    </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+{% endblock %}

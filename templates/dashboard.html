@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}QuSenseSim | Dashboard{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell container">
+    <div class="dashboard-topbar">
+        <div>
+            <h1>Noise-Aware Quantum Sensing Dashboard</h1>
+            <p>Per-sensor noise controls, draggable environment sources, explicit Markovian noise analysis, and center-focused workspace view.</p>
+        </div>
+        <div class="live-indicator">
+            <span class="live-dot"></span>
+            <span>.3.3 Active</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <aside class="panel control-panel">
+            <div class="panel-header">
+                <h2>Controls</h2>
+                <p>Global settings, selected sensor noises, source creation, and workspace zoom.</p>
+            </div>
+
+            <div class="control-group">
+                <label>Active sensors <span id="sensorCountValue">4</span></label>
+                <div class="panel-actions">
+                    <button class="btn btn-primary" id="addSensorBtn" type="button">Add Sensor</button>
+                    <button class="btn btn-danger" id="deleteSelectedSensorBtn" type="button">Delete Selected Sensor</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="globalNoise">Global environment noise <span id="globalNoiseValue">0.15</span></label>
+                <input type="range" id="globalNoise" min="0" max="0.80" step="0.01" value="0.15">
+            </div>
+
+            <div class="control-group">
+                <label for="fieldStrength">Field strength <span id="fieldStrengthValue">0.60</span></label>
+                <input type="range" id="fieldStrength" min="0" max="1.50" step="0.01" value="0.60">
+            </div>
+
+            <div class="control-group">
+                <label for="phaseShift">Phase shift <span id="phaseShiftValue">0.50</span></label>
+                <input type="range" id="phaseShift" min="0" max="1.00" step="0.01" value="0.50">
+            </div>
+
+            <div class="control-group">
+                <label for="workspaceZoom">Workspace zoom <span id="workspaceZoomValue">90%</span></label>
+                <input type="range" id="workspaceZoom" min="60" max="100" step="5" value="90">
+            </div>
+
+            
+            <div class="control-group">
+                <label for="collaborationMode">Collaboration mode</label>
+                <select id="collaborationMode" class="dashboard-select">
+                    <option value="independent">Independent</option>
+                    <option value="entangled">Entangled-Style</option>
+                    <option value="federated">Federated-Style</option>
+                </select>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="panel-header compact">
+                <h2>Selected sensor noise</h2>
+            </div>
+            <div class="control-group">
+                <label for="selectedGateNoise">Gate noise <span id="selectedGateNoiseValue">0.01</span></label>
+                <input type="range" id="selectedGateNoise" min="0" max="0.50" step="0.01" value="0.01">
+            </div>
+            <div class="control-group">
+                <label for="selectedMeasurementNoise">Measurement noise <span id="selectedMeasurementNoiseValue">0.02</span></label>
+                <input type="range" id="selectedMeasurementNoise" min="0" max="0.50" step="0.01" value="0.02">
+            </div>
+            <div class="control-group">
+                <label for="selectedDeviceNoise">Device noise <span id="selectedDeviceNoiseValue">0.03</span></label>
+                <input type="range" id="selectedDeviceNoise" min="0" max="0.50" step="0.01" value="0.03">
+            </div>
+
+            <div class="toggle-stack">
+                <label class="checkbox-row"><input type="checkbox" id="enableCircuitNoise" checked><span>Enable circuit noise</span></label>
+                <label class="checkbox-row"><input type="checkbox" id="enableEnvironmentNoise" checked><span>Enable environment noise</span></label>
+                <label class="checkbox-row"><input type="checkbox" id="enableSpatialNoise" checked><span>Enable spatial noise</span></label>
+                <label class="checkbox-row"><input type="checkbox" id="enableSourceEffects" checked><span>Enable source effects</span></label>
+            </div>
+
+            <div class="panel-actions">
+                <button class="btn btn-primary" id="simulateBtn" type="button">Run Simulation</button>
+                <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
+            </div>
+
+            <div class="panel-header compact">
+                <h2>Selected item actions</h2>
+                <p>Remove a circuit from the selected sensor or delete a source device.</p>
+            </div>
+            <div class="panel-actions">
+                <button class="btn btn-secondary" id="removeCircuitBtn" type="button">Remove Circuit</button>
+                <button class="btn btn-danger" id="deleteSelectedSourceBtn" type="button">Delete Selected Source</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="panel-header compact">
+                <h2>Add source device</h2>
+                <p>Create a draggable source with an affected range.</p>
+            </div>
+            <div class="source-button-grid">
+                <button class="btn btn-secondary source-add-btn" data-type="cooling" type="button">Add Cooling</button>
+                <button class="btn btn-secondary source-add-btn" data-type="heating" type="button">Add Heating</button>
+                <button class="btn btn-secondary source-add-btn" data-type="shielding" type="button">Add Shield</button>
+                <button class="btn btn-secondary source-add-btn" data-type="interference" type="button">Add Interference</button>
+            </div>
+
+            <div class="panel-header compact">
+                <h2>Fixed Circuits</h2>
+            </div>
+            <div id="fixedCircuitList" class="circuit-card-list"></div>
+
+            <div class="panel-header compact">
+                <h2>Custom Circuits</h2>
+            </div>
+            <div id="customCircuitList" class="circuit-card-list"></div>
+        </aside>
+
+        <section class="panel workspace-panel">
+            <div class="panel-header">
+                <h2>Workspace</h2>
+                <p>Drag sensors and devices. Source circles show where effects apply.</p>
+            </div>
+
+            <div class="workspace-viewport" id="workspaceViewport">
+                <div class="workspace-scale-wrap" id="workspaceScaleWrap">
+                    <div class="workspace" id="workspace">
+                        <div class="environment-overlay" id="environmentOverlay"></div>
+                        <div class="environment-core"><span>Environment</span></div>
+                        <div id="sourceLayer"></div>
+                        <div id="sensorLayer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="noise-analysis-card">
+                <div class="analysis-header">
+                    <h3>Markovian Noise Analysis <span class="mini-pill">Memoryless Model</span></h3>
+                    <p>All gate, measurement, device, environment, and source effects are modeled under a Markovian approximation.</p>
+                </div>
+                <div class="markovian-note">
+                    <strong>Noise Model:</strong> Markovian (memoryless). Noise at the current step depends only on current settings, circuit structure, sensor position, and active sources.
+                </div>
+                <div class="analysis-grid">
+                    <div class="analysis-block">
+                        <span>Effective noise</span>
+                        <div class="progress-track"><div class="progress-fill" id="effectiveNoiseBar"></div></div>
+                        <strong id="effectiveNoiseBarLabel">0.000</strong>
+                    </div>
+                    <div class="analysis-block">
+                        <span>Average effective noise</span>
+                        <div class="progress-track"><div class="progress-fill avg-fill" id="avgNoiseBar"></div></div>
+                        <strong id="avgNoiseBarLabel">0.000</strong>
+                    </div>
+                </div>
+            </div>
+                    <div class="workspace-proceed-row" id="workspaceProceedRow">
+                <button class="btn btn-primary workspace-proceed-btn" id="proceedToAnalysisBtn" type="button">
+                    Proceed to Mitigation Analysis
+                </button>
+            </div>
+        </section>
+
+        <aside class="panel results-panel">
+            <div class="panel-header">
+                <h2>Selected Sensor</h2>
+                <p>Explicit Markovian-noise interpretation with source effects.</p>
+            </div>
+
+            <div class="result-card accent">
+                <div class="result-row"><span>Name</span><strong id="selectedName">Sensor 1</strong></div>
+                <div class="result-row"><span>Status</span><strong id="selectedStatus" class="status-text stable">Stable</strong></div>
+                <div class="result-row"><span>Assigned circuit</span><strong id="selectedCircuitName">Unassigned</strong></div>
+                <div class="result-row"><span>Circuit mode</span><strong id="selectedCircuitMode">Fixed</strong></div>
+                <div class="result-row"><span>Estimate</span><strong id="selectedEstimate">0.000</strong></div>
+                <div class="result-row"><span>FI</span><strong id="selectedFI">0.000</strong></div>
+                <div class="result-row"><span>CRB</span><strong id="selectedCRB">0.000</strong></div>
+                <div class="result-row"><span>Noise rate γ</span><strong id="selectedGamma">0.000</strong></div>
+                <div class="result-row"><span>Sensing time t</span><strong id="selectedTime">1.0</strong></div>
+            </div>
+
+            <div class="result-section">
+                <h3>Noise breakdown</h3>
+                <div class="result-card">
+                    <div class="result-row"><span>Gate noise</span><strong id="gateNoise">0.000</strong></div>
+                    <div class="result-row"><span>Measurement noise</span><strong id="measurementNoise">0.000</strong></div>
+                    <div class="result-row"><span>Device noise</span><strong id="deviceNoise">0.000</strong></div>
+                    <div class="result-row"><span>Total sensor noise</span><strong id="sensorNoise">0.000</strong></div>
+                    <div class="result-row"><span>Environment noise</span><strong id="environmentNoise">0.000</strong></div>
+                    <div class="result-row"><span>Circuit noise</span><strong id="circuitNoise">0.000</strong></div>
+                    <div class="result-row"><span>Spatial noise</span><strong id="spatialNoise">0.000</strong></div>
+                    <div class="result-row"><span>Source modifier</span><strong id="sourceModifier">0.000</strong></div>
+                    <div class="result-row"><span>Base noise</span><strong id="baseNoise">0.000</strong></div>
+                    <div class="result-row"><span>Effective noise</span><strong id="effectiveNoise">0.000</strong></div>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <h3>Source effects</h3>
+                <div class="preview-card" id="sourceEffectsPanel">No active source effects.</div>
+            </div>
+
+            <div class="result-section">
+                <h3>Circuit preview</h3>
+                <div class="preview-card" id="circuitPreview">No gates assigned.</div>
+            </div>
+
+            <div class="result-section">
+                <h3>Global summary</h3>
+                <div class="result-card">
+                    <div class="result-row"><span>Average estimate</span><strong id="avgEstimate">0.000</strong></div>
+                    <div class="result-row"><span>Average FI</span><strong id="avgFI">0.000</strong></div>
+                    <div class="result-row"><span>Average CRB</span><strong id="avgCRB">0.000</strong></div>
+                    <div class="result-row"><span>Average effective noise</span><strong id="avgEffectiveNoise">0.000</strong></div>
+                    <div class="result-row"><span>Stable sensors</span><strong id="stableCount">0</strong></div>
+                    <div class="result-row"><span>Degraded sensors</span><strong id="degradedCount">0</strong></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dragdrop.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

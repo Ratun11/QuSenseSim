@@ -1,0 +1,21 @@
+{
+  "id": "custom_b79c062f",
+  "name": "My_Circuit_1",
+  "mode": "custom",
+  "number_of_qubits": 1,
+  "gate_sequence": [
+    {
+      "type": "RX",
+      "target_qubit": 0,
+      "control_qubit": null,
+      "parameter": 0.5
+    },
+    {
+      "type": "Z",
+      "target_qubit": 0,
+      "control_qubit": null,
+      "parameter": null
+    }
+  ],
+  "description": "Custom circuit created in QuSenseSim builder."
+}

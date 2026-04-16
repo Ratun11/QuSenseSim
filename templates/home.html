@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}QuSenseSim | Home{% endblock %}
+
+{% block content %}
+<section class="home-stack">
+
+    <section class="hero-card">
+        <div class="hero">
+            <span class="hero-badge">Noise-Aware Quantum Sensing Platform</span>
+
+            <h1>QuSenseSim</h1>
+
+            <p class="hero-subtitle">
+                An interactive simulator for exploring quantum sensing under Markovian noise,
+                mitigation strategies, collaboration modes, and sensor-level analysis in a clean visual environment.
+            </p>
+
+            <div class="hero-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Open Dashboard</a>
+                <a href="{{ url_for('analysis') }}" class="btn btn-secondary">Go to Analysis</a>
+            </div>
+
+            <div class="hero-points">
+                <span class="info-pill">Interactive Workspace</span>
+                <span class="info-pill">Noise Modeling</span>
+                <span class="info-pill">Mitigation Techniques</span>
+                <span class="info-pill">Sensor-Level Analysis</span>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="mini-sim-card">
+                <div class="mini-orbit"></div>
+                <div class="mini-orbit orbit-b"></div>
+                <div class="mini-core"></div>
+                <div class="mini-node node-a"></div>
+                <div class="mini-node node-b"></div>
+                <div class="mini-node node-c"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="section-heading">
+            <h2>What QuSenseSim Provides</h2>
+            <p>
+                QuSenseSim is designed to help users study how quantum sensing systems behave under realistic noisy conditions,
+                while making it easy to inspect mitigation strategies, sensor heterogeneity, and collaboration behavior.
+            </p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>Interactive Dashboard</h3>
+                <p>
+                    Create and place sensors in a visual workspace, adjust environment parameters,
+                    assign circuits, and observe changes in sensing behavior in real time.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Noise-Aware Simulation</h3>
+                <p>
+                    Explore gate noise, measurement noise, device noise, environment noise, and source effects
+                    under a Markovian approximation.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Mitigation Techniques</h3>
+                <p>
+                    Compare execution-time mitigation techniques and post-processing mitigation techniques,
+                    both uniformly across sensors and in personalized sensor-specific configurations.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Collaboration Modes</h3>
+                <p>
+                    Evaluate Independent, Entangled-Style, and Federated-Style sensing setups and inspect
+                    how collaboration changes performance under noise.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Time-Based Analysis</h3>
+                <p>
+                    Study metric evolution over time using sensing duration and T1/T2-style decay behavior,
+                    with graphs and tables for easier interpretation.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Research-Oriented Output</h3>
+                <p>
+                    Generate clean visual comparisons, sensor-level summaries, and export-friendly results
+                    that are suitable for reports, demos, and research presentation.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="section-heading">
+            <h2>How to Use the Platform</h2>
+            <p>
+                The workflow is simple and is designed to guide the user from interactive setup to detailed analysis.
+            </p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>Step 1 — Configure the System</h3>
+                <ol class="howto-list">
+                    <li>Open the Dashboard.</li>
+                    <li>Add sensors and place them in the workspace.</li>
+                    <li>Adjust field strength, phase shift, and global environment noise.</li>
+                    <li>Optionally add source devices such as cooling, heating, shielding, or interference.</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h3>Step 2 — Assign Sensing Structure</h3>
+                <ol class="howto-list">
+                    <li>Select or build a circuit.</li>
+                    <li>Assign circuits to sensors.</li>
+                    <li>Control sensor-specific noise values where needed.</li>
+                    <li>Run the simulation to update workspace metrics.</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h3>Step 3 — Choose Mitigation</h3>
+                <ol class="howto-list">
+                    <li>Go to the Analysis page.</li>
+                    <li>Select collaboration mode(s).</li>
+                    <li>Choose uniform mitigation or personalized sensor mitigation.</li>
+                    <li>Apply execution-time and/or post-processing mitigation techniques.</li>
+                </ol>
+            </div>
+
+            <div class="info-card">
+                <h3>Step 4 — Inspect the Results</h3>
+                <ol class="howto-list">
+                    <li>Compare FI, CRB, estimate, and effective noise.</li>
+                    <li>Inspect graph and table pairs.</li>
+                    <li>Review sensor-level performance.</li>
+                    <li>Use exports for reports and presentation workflows.</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="section-heading">
+            <h2>What to Expect</h2>
+            <p>
+                The platform is intended to make complex sensing behavior easier to visualize and compare.
+            </p>
+        </div>
+
+        <div class="panel">
+            <ul class="expect-list">
+                <li>Visual sensor placement and source-aware workspace interaction</li>
+                <li>Real-time updates of sensing metrics using backend-connected simulation</li>
+                <li>Noise-aware comparison across multiple mitigation strategies</li>
+                <li>Uniform and personalized mitigation workflows</li>
+                <li>Graph + table benchmarking for cleaner interpretation</li>
+                <li>Sensor-level detail views for heterogeneous systems</li>
+                <li>Export-ready analysis output for research and demo use</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="section-heading">
+            <h2>Navigation</h2>
+            <p>
+                Use the platform in stages depending on your goal.
+            </p>
+        </div>
+
+        <div class="quick-links">
+            <a href="{{ url_for('home') }}" class="quick-link-pill">Home</a>
+            <a href="{{ url_for('dashboard') }}" class="quick-link-pill">Dashboard</a>
+            <a href="{{ url_for('circuit_builder') }}" class="quick-link-pill">Circuit Builder</a>
+            <a href="{{ url_for('analysis') }}" class="quick-link-pill">Analysis</a>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="home-note">
+            QuSenseSim is built to support interactive exploration of quantum sensing behavior, especially under
+            noisy and heterogeneous conditions. It is suitable for demonstration, experimentation, and structured analysis.
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="section-heading">
+            <h2>Contact</h2>
+            <p>
+                For questions, feedback, or collaboration inquiries, please use the contact information below.
+            </p>
+        </div>
+
+        <div class="contact-card">
+            <div class="contact-details">
+                <h3>Ratun Rahman</h3>
+                <p>
+                    Research, simulator development, and technical inquiries related to QuSenseSim.
+                </p>
+
+                <div class="contact-lines">
+                    <div class="contact-line">
+                        Email:
+                        <a href="mailto:rr0110@uah.edu">rr0110@uah.edu</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-badge">Get in Touch</div>
+        </div>
+    </section>
+
+</section>
+{% endblock %}
