@@ -32,27 +32,24 @@ observing their impact on performance metrics such as Fisher Information
 
 1.  Clone the repository:
 
-```{=html}
-<!-- -->
+``` bash
+git clone https://github.com/Ratun11/QuSenseSim.git
+cd QuSenseSim
 ```
-    git clone https://github.com/Ratun11/QuSenseSim.git
-    cd QuSenseSim
 
 2.  Create a virtual environment:
 
-```{=html}
-<!-- -->
+``` bash
+python -m venv venv
+source venv/bin/activate   # Linux/macOS
+venv\Scripts\activate    # Windows
 ```
-    python -m venv venv
-    source venv/bin/activate   # Linux/macOS
-    venv\Scripts\activate    # Windows
 
 3.  Install dependencies:
 
-```{=html}
-<!-- -->
+``` bash
+pip install -r requirements.txt
 ```
-    pip install -r requirements.txt
 
 ## Usage
 
@@ -72,7 +69,6 @@ Then open your browser and go to:
     estimators.
 -   **Noise Modeling:** Simulates realistic quantum noise effects.
 -   **Mitigation Techniques:** Methods to reduce noise impact.
-
 
 ## Contribution
 
